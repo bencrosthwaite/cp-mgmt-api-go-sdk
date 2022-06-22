@@ -49,6 +49,7 @@ type ApiClient struct {
 	fingerprint             string
 	sid                     string
 	server                  string
+	cloud_path				string	
 	domain                  string
 	proxyHost               string
 	proxyPort               int
@@ -126,6 +127,11 @@ func (c *ApiClient) GetPort() int {
 // Returns the context of API client
 func (c *ApiClient) GetContext() string {
 	return c.context
+}
+
+// Returns the Cloud Path of API client
+func (c *ApiClient) GetCloud_path() string {
+	return c.cloud_path
 }
 
 func (c *ApiClient) GetAutoPublish() bool {
@@ -331,12 +337,22 @@ func (c *ApiClient) ApiCall(command string, payload map[string]interface{}, sid 
 		}
 	}
 
-	var url string
+
+// Update URL string to include cloud_path to allow use with Smart-1 Cloud
+
+var url string
+if c.cloud_path != "" {
 	if c.apiVersion == "" {
-		url = "/" + c.context + "/" + command
-	} else {
-		url = "/" + c.context + "/" + "v" + c.apiVersion + "/" + command
+	url = "/" + c.cloud_path + "/" + c.context + "/" + command
+	}else {
+	url = "/" + c.cloud_path + "/" + c.context + "/" + "v" + c.apiVersion + "/" + command
 	}
+}else if c.apiVersion == "" {
+	url = "/" + c.context + "/" + command
+}else {
+	url = "/" + c.context + "/" + "v" + c.apiVersion + "/" + command
+}
+
 
 	client.fingerprint = c.fingerprint
 
